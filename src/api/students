@@ -1,0 +1,8 @@
+export const fetchStudents = async() => {
+    const response = await fetch('/api/students');
+
+    if (!response.ok){
+        throw new Error('Ошибка при загрузке данных о студентах');
+    }
+    return response.json();
+}
