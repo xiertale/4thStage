@@ -1,5 +1,4 @@
 import sqlite3 from 'sqlite3';
-
 import type StudentInterface from '@/types/StudentInterface';
 
 sqlite3.verbose();
@@ -20,15 +19,22 @@ export const getStudentDb = async (): Promise<StudentInterface[]> => {
     });
   });
 
-  // test data
-  // const groups: GroupInterface[] = [
-  //   {
-  //     name: '2207 д2',
-  //   },
-  //   {
-  //     name: '2207 д2',
-  //   },
-  // ];
-
   return students as StudentInterface[];
+};
+
+export const deleteStudentDb = async (studentId: number): Promise<void> => {
+  const db = new sqlite3.Database(process.env.DB ?? './db/vki-web.db');
+
+  await new Promise<void>((resolve, reject) => {
+    const sql = 'DELETE FROM student WHERE id = ?';
+    db.run(sql, [studentId], function (err) {
+      if (err) {
+        reject(err);
+        db.close();
+        return;
+      }
+      resolve();
+      db.close();
+    });
+  });
 };
