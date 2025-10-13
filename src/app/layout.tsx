@@ -7,12 +7,10 @@ import type GroupInterface from '@/types/GroupInterface';
 import Header from '@/components/layout/Header/Header';
 import Footer from '@/components/layout/Footer/Footer';
 import Main from '@/components/layout/Main/Main';
-
-import type { Metadata } from 'next';
-
-import '@/styles/globals.scss';
 import StudentInterface from '@/types/StudentInterface';
-import { getStudentsApi } from '@/api/students';
+import type { Metadata } from 'next';
+import { getStudentsApi } from '@/api/studentApi';
+import '@/styles/globals.scss';
 
 export const metadata: Metadata = {
   title: 'Вэб разработка ВКИ - Next.js шаблон',
@@ -34,15 +32,16 @@ const RootLayout = async ({ children }: Readonly<{ children: React.ReactNode }>)
 
   let students: StudentInterface[];
 
-  // выполняется на сервере - загрузка групп
+  // выполняется на сервере - загрузка студентов
   await queryClient.prefetchQuery({
     queryKey: ['students'],
     queryFn: async () => {
       students = await getStudentsApi();
-      console.log('Students', students);
+      console.log('students', students);
       return students;
     },
   });
+
 
   const state = dehydrate(queryClient, { shouldDehydrateQuery: () => true });
 

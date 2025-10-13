@@ -1,29 +1,56 @@
-import type StudentInterface from '@/types/StudentInterface';
-import styles from './Student.module.scss';
+'use client';
 
-interface Props {
-  student: StudentInterface;
-  onDelete: (id: number) => void;
-}
+import { useState } from 'react';
+import useStudents from '@/hooks/useStudents';
+import StudentInterface from '@/types/StudentInterface';
+import AddStudent from './AddStudent';
+import Student from './Student';
 
-const Student = ({ student, onDelete }: Props): React.ReactElement => {
-  const onDeleteHandler = (): void => {
-    onDelete(student.id);
+const Students = (): React.ReactElement => {
+  const { students, deleteStudent, isLoading, isDeleting, refetch } = useStudents();
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+
+
+  const handleDelete = async (id: number) => {
+    if (window.confirm('Вы уверены, что хотите удалить этого студента?')) {
+      try {
+        setDeletingId(id);
+        await deleteStudent(id);
+      } catch (error) {
+        console.error('Error deleting student:', error);
+        alert('Ошибка при удалении студента');
+      } finally {
+        setDeletingId(null);
+      }
+    }
   };
 
+  if (isLoading) {
+    return <div>Загрузка...</div>;
+  }
+
   return (
-    <div className={`${styles.Student} ${student.isDeleted ? styles['--isDeleted'] : '' }`}>
-      {student.id}
-      {' - '}
-      {student.last_name}
-      {' '}
-      {student.first_name}
-      {' '}
-      {student.middle_name}
-      {' '}
-      <button onClick={onDeleteHandler}>Удалить</button>
+    <div>
+      <AddStudent />
+      
+      <div style={{ marginTop: '20px' }}>
+        <h2>Список студентов ({students.length})</h2>
+        {students.length === 0 ? (
+          <p>Студенты не найдены</p>
+        ) : (
+          <div>
+            {students.map((student: StudentInterface) => (
+              <Student
+                key={student.id}
+                student={student}
+                onDelete={handleDelete}
+              />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
 
-export default Student;
+export default Students;
