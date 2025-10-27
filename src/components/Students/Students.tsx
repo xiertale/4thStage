@@ -22,6 +22,7 @@ const Students = (): React.ReactElement => {
     if (confirm('Удалить студента?')) {
       console.log('onDeleteHandler', studentId);
       debugger;
+      console.log('onDeleteHandler', studentId);
 
       deleteStudentMutate(studentId);
     }
@@ -32,8 +33,8 @@ const Students = (): React.ReactElement => {
    * @param studentFormField Форма студента
    */
   const onAddHandler = (studentFormField: FormFields): void => {
-    console.log('Добавление студента', studentFormField);
     debugger;
+    console.log('Добавление студента', studentFormField);
 
     addStudentMutate({
       id: -1,
