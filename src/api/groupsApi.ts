@@ -1,8 +1,10 @@
 import type GroupInterface from '@/types/GroupInterface';
 
+const API_BASE = process.env.NEXT_PUBLIC_API || '/api/';
+
 export const getGroupsApi = async (): Promise<GroupInterface[]> => {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API}groups`);
+    const response = await fetch(`${API_BASE}groups`);
 
     if (!response.ok) {
       throw new Error(`Ошибка HTTP: ${response.status}${response.statusText}`);
@@ -16,31 +18,9 @@ export const getGroupsApi = async (): Promise<GroupInterface[]> => {
   }
 };
 
-export const deleteGroupApi = async (groupId: number): Promise<number> => {
-  console.log('deleteGroupApi', groupId);
-  debugger;
-  try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API}groups/${groupId}`, {
-      method: 'DELETE',
-    });
-
-    if (!response.ok) {
-      throw new Error(`Ошибка HTTP: ${response.status}${response.statusText}`);
-    }
-    console.log('deleteGroupApi ok', groupId);
-    debugger;
-
-    return groupId;
-  }
-  catch (err) {
-    console.log('>>> deleteGroupApi', err);
-    return -1;
-  }
-};
-
 export const addGroupApi = async (group: Omit<GroupInterface, 'id'>): Promise<GroupInterface> => {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API}groups`, {
+    const response = await fetch(`${API_BASE}groups`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(group),
@@ -58,9 +38,28 @@ export const addGroupApi = async (group: Omit<GroupInterface, 'id'>): Promise<Gr
   }
 };
 
+export const deleteGroupApi = async (groupId: number): Promise<number> => {
+  try {
+    const response = await fetch(`${API_BASE}groups/${groupId}`, {
+      method: 'DELETE',
+    });
+
+    if (!response.ok) {
+      throw new Error(`Ошибка HTTP: ${response.status}${response.statusText}`);
+    }
+
+    return groupId;
+  }
+  catch (err) {
+    console.log('>>> deleteGroupApi', err);
+    return -1;
+  }
+};
+
+// Дополнительные функции, если нужны
 export const updateGroupApi = async (group: GroupInterface): Promise<GroupInterface> => {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API}groups/${group.id}`, {
+    const response = await fetch(`${API_BASE}groups/${group.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(group),
@@ -80,7 +79,7 @@ export const updateGroupApi = async (group: GroupInterface): Promise<GroupInterf
 
 export const getGroupByIdApi = async (id: string): Promise<GroupInterface | null> => {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API}groups/${id}`, {
+    const response = await fetch(`${API_BASE}groups/${id}`, {
       cache: 'no-store',
     });
 
