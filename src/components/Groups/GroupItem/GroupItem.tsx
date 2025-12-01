@@ -1,56 +1,33 @@
 import type GroupInterface from '@/types/GroupInterface';
 import styles from './GroupItem.module.scss';
 
-interface Props {
+interface GroupItemProps {
   group: GroupInterface;
   onDelete: (groupId: number) => void;
 }
 
-const GroupItem = ({ group, onDelete }: Props): React.ReactElement => {
+const GroupItem = ({ group, onDelete }: GroupItemProps): React.ReactElement => {
   const handleDelete = (): void => {
     onDelete(group.id);
   };
 
   return (
-    <div className={styles.GroupItem}>
-      <div className={styles.groupHeader}>
-        <h3 className={styles.groupName}>{group.name}</h3>
-        <button 
-          className={styles.deleteButton}
-          onClick={handleDelete}
-          title="Удалить группу"
-        >
-          ×
-        </button>
-      </div>
-      
-      {group.contacts && (
-        <div className={styles.contacts}>
-          <strong>Контакты:</strong> {group.contacts}
+    <div className={styles.GroupItem} style={{ opacity: group.isDeleted ? 0.5 : 1 }}>
+      <div className={styles.content}>
+        <h3 className={styles.title}>{group.name}</h3>
+        {group.description && <p className={styles.description}>{group.description}</p>}
+        <div className={styles.info}>
+          <span>ID: {group.id}</span>
+          {group.uuid && <span>UUID: {group.uuid}</span>}
         </div>
-      )}
-      
-      <div className={styles.studentsInfo}>
-        <strong>Студентов:</strong> {group.students?.length || 0}
       </div>
-      
-      {group.students && group.students.length > 0 && (
-        <div className={styles.studentsList}>
-          <strong>Студенты:</strong>
-          <ul>
-            {group.students.map(student => (
-              <li key={student.id}>
-                {student.lastName} {student.firstName} {student.middleName}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-      
-      <div className={styles.groupFooter}>
-        <span>ID: {group.id}</span>
-        <span>{group.students?.length || 0} студ.</span>
-      </div>
+      <button 
+        className={styles.deleteButton} 
+        onClick={handleDelete}
+        disabled={group.isDeleted}
+      >
+        Удалить
+      </button>
     </div>
   );
 };

@@ -1,10 +1,10 @@
-import type StudentInterface from './StudentInterface';
-
 interface GroupInterface {
   id: number;
+  uuid?: string;
   name: string;
-  contacts: string;
-  students?: StudentInterface[];
-};
+  description?: string;
+  isDeleted?: boolean;
+  isNew?: boolean;
+}
 
 export default GroupInterface;

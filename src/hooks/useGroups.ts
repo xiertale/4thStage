@@ -3,117 +3,134 @@ import {
   useMutation,
   useQueryClient,
 } from '@tanstack/react-query';
-import { getGroupsApi, addGroupApi, deleteGroupApi } from '@/api/groupsApi';
+import { addGroupApi, deleteGroupApi, getGroupsApi } from '@/api/groupsApi';
 import type GroupInterface from '@/types/GroupInterface';
 
 interface GroupsHookInterface {
   groups: GroupInterface[];
-  addGroupMutate: (group: Omit<GroupInterface, 'id'>) => void;
   deleteGroupMutate: (groupId: number) => void;
-  isAdding: boolean;
-  isDeleting: boolean;
+  addGroupMutate: (group: GroupInterface) => void;
 }
 
 const useGroups = (): GroupsHookInterface => {
   const queryClient = useQueryClient();
 
-  const { data } = useQuery({
+  const { data, refetch } = useQuery({
     queryKey: ['groups'],
     queryFn: () => getGroupsApi(),
     enabled: true,
   });
 
   /**
-   * Мутация добавления группы
-   */
-  const addGroupMutation = useMutation({
-    mutationFn: async (group: Omit<GroupInterface, 'id'>) => addGroupApi(group),
-    
-    onMutate: async (newGroup: Omit<GroupInterface, 'id'>) => {
-      await queryClient.cancelQueries({ queryKey: ['groups'] });
-      
-      const previousGroups = queryClient.getQueryData<GroupInterface[]>(['groups']);
-      const updatedGroups = [...(previousGroups ?? [])];
-
-      // Временно добавляем группу с временным ID
-      const temporaryGroup: GroupInterface = {
-        ...newGroup,
-        id: Date.now(),
-        students: [],
-      };
-      
-      updatedGroups.push(temporaryGroup);
-      queryClient.setQueryData<GroupInterface[]>(['groups'], updatedGroups);
-
-      return { previousGroups, temporaryGroup };
-    },
-    
-    onError: (err, variables, context) => {
-      console.error('Error adding group:', err);
-      queryClient.setQueryData<GroupInterface[]>(['groups'], context?.previousGroups);
-    },
-    
-    onSuccess: (newGroup: GroupInterface, variables, context) => {
-      if (context?.temporaryGroup) {
-        queryClient.setQueryData<GroupInterface[]>(['groups'], (oldGroups = []) => 
-          oldGroups.map(group => 
-            group.id === context.temporaryGroup.id ? newGroup : group
-          )
-        );
-      }
-    },
-  });
-
-  /**
    * Мутация удаления группы
    */
-  const deleteGroupMutation = useMutation({
+  const deleteGroupMutate = useMutation({
+    // вызов API delete
     mutationFn: async (groupId: number) => deleteGroupApi(groupId),
-    
+    // оптимистичная мутация (обновляем данные на клиенте до API запроса delete)
     onMutate: async (groupId: number) => {
       await queryClient.cancelQueries({ queryKey: ['groups'] });
-      
+      // получаем данные из TanStackQuery
       const previousGroups = queryClient.getQueryData<GroupInterface[]>(['groups']);
       let updatedGroups = [...(previousGroups ?? [])];
 
       if (!updatedGroups) return;
 
+      // помечаем удаляемую запись
       updatedGroups = updatedGroups.map((group: GroupInterface) => ({
         ...group,
-        ...(group.id === groupId ? { isDeleting: true } : {}),
+        ...(group.id === groupId ? { isDeleted: true } : {}),
       }));
-      
+      // обновляем данные в TanStackQuery
       queryClient.setQueryData<GroupInterface[]>(['groups'], updatedGroups);
 
-      return { previousGroups };
+      console.log('deleteGroupMutate onMutate', previousGroups, updatedGroups);
+      debugger;
+
+      return { previousGroups, updatedGroups };
     },
-    
     onError: (err, variables, context) => {
-      console.error('Error deleting group:', err);
+      console.log('deleteGroupMutate err', err);
+      debugger;
       queryClient.setQueryData<GroupInterface[]>(['groups'], context?.previousGroups);
     },
-    
-    onSuccess: async (groupId, variables, context) => {
+    // обновляем данные в случае успешного выполнения mutationFn: async (groupId: number) => deleteGroupApi(groupId),
+    onSuccess: async (success, groupId, context) => {
+      console.log('deleteGroupMutate onSuccess', groupId);
+      debugger;
+
       await queryClient.cancelQueries({ queryKey: ['groups'] });
       
+      // вариант 1 - запрос всех записей
+      // refetch();
+
+      // вариант 2 - удаление конкретной записи
       if (!context?.previousGroups) {
         return;
       }
-      
       const updatedGroups = context.previousGroups.filter((group: GroupInterface) => group.id !== groupId);
       queryClient.setQueryData<GroupInterface[]>(['groups'], updatedGroups);
 
-      // Инвалидируем кэш студентов
+      // обновляем кэш студентов так как обновились группы
       queryClient.invalidateQueries({ queryKey: ['students'] });
+    },
+    // onSettled: (data, error, variables, context) => {
+    //   // вызывается после выполнения запроса в случаи удачи или ошибке
+    //   console.log('>> deleteGroupMutate onSettled', data, error, variables, context);
+    // },
+  });
+
+  /**
+   * Мутация добавления группы
+   */
+  const addGroupMutate = useMutation({
+    mutationFn: async (group: GroupInterface) => addGroupApi(group),
+
+    onMutate: async (group: GroupInterface) => {
+      await queryClient.cancelQueries({ queryKey: ['groups'] });
+      // получаем данные из TanStackQuery
+      const previousGroups = queryClient.getQueryData<GroupInterface[]>(['groups']);
+      const updatedGroups = [...(previousGroups ?? [])];
+
+      if (!updatedGroups) return;
+
+      // добавляем временную запись
+      updatedGroups.push({
+        ...group,
+        isNew: true,
+      });
+      // обновляем данные в TanStackQuery
+      queryClient.setQueryData<GroupInterface[]>(['groups'], updatedGroups);
+
+      return { previousGroups, updatedGroups };
+    },
+    onError: (err, variables, context) => {
+      console.log('>>> addGroupMutate err', err);
+      queryClient.setQueryData<GroupInterface[]>(['groups'], context?.previousGroups);
+    },
+    // обновляем данные в случае успешного выполнения mutationFn: async (group: GroupInterface) => addGroupApi(group)
+    onSuccess: async (newGroup, variables, context) => {
+      refetch();
+      // обновляем кэш студентов так как обновились группы
+      queryClient.invalidateQueries({ queryKey: ['students'] });
+      // await queryClient.cancelQueries({ queryKey: ['groups'] });
+
+      // if (!context?.previousGroups) {
+      //   queryClient.setQueryData<GroupInterface[]>(['groups'], [newGroup]);
+      //   return;
+      // }
+
+      // const updatedGroupsNew = context.updatedGroups.map((group: GroupInterface) => ({
+      //   ...(group.uuid === newGroup.uuid ? newGroup : group),
+      // }));
+      // queryClient.setQueryData<GroupInterface[]>(['groups'], updatedGroupsNew);
     },
   });
 
   return {
     groups: data ?? [],
-    addGroupMutate: addGroupMutation.mutate,
-    deleteGroupMutate: deleteGroupMutation.mutate,
-    isAdding: addGroupMutation.isPending,
-    isDeleting: deleteGroupMutation.isPending,
+    deleteGroupMutate: deleteGroupMutate.mutate,
+    addGroupMutate: addGroupMutate.mutate,
   };
 };
 

@@ -1,67 +1,49 @@
-import { useForm, type SubmitHandler } from 'react-hook-form';
+import { useState } from 'react';
 import styles from './AddGroup.module.scss';
 
-export interface GroupFormFields {
+export type FormFields = {
   name: string;
-  contacts: string;
+  description?: string;
+};
+
+interface AddGroupProps {
+  onAdd: (groupFormField: FormFields) => void;
 }
 
-interface Props {
-  onAdd: (groupForm: GroupFormFields) => void;
-  onCancel?: () => void;
-}
+const AddGroup = ({ onAdd }: AddGroupProps): React.ReactElement => {
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
 
-const AddGroup = ({ onAdd, onCancel }: Props): React.ReactElement => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm<GroupFormFields>();
+  const handleSubmit = (e: React.FormEvent): void => {
+    e.preventDefault();
+    
+    if (!name.trim()) {
+      alert('Введите название группы');
+      return;
+    }
 
-  const onSubmit: SubmitHandler<GroupFormFields> = (groupForm) => {
-    onAdd(groupForm);
-    reset();
-  };
-
-  const handleCancel = () => {
-    reset();
-    onCancel?.();
+    onAdd({ name, description });
+    setName('');
+    setDescription('');
   };
 
   return (
-    <div className={styles.AddGroup}>
-      <h2>Добавление группы</h2>
-      
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <input
-          placeholder="Название группы"
-          {...register('name', { 
-            required: 'Обязательное поле',
-            minLength: {
-              value: 2,
-              message: 'Минимум 2 символа'
-            }
-          })}
-          className={errors.name ? styles.error : ''}
-        />
-        {errors.name && <div className={styles.errorMessage}>{errors.name.message}</div>}
-
-        <input
-          placeholder="Контакты"
-          {...register('contacts')}
-        />
-
-        <div className={styles.buttons}>
-          <input type="submit" value="Добавить группу" className={styles.submitButton} />
-          {onCancel && (
-            <button type="button" onClick={handleCancel} className={styles.cancelButton}>
-              Отмена
-            </button>
-          )}
-        </div>
-      </form>
-    </div>
+    <form className={styles.AddGroup} onSubmit={handleSubmit}>
+      <input
+        type="text"
+        placeholder="Название группы"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        required
+      />
+      <input
+        type="text"
+        placeholder="Описание (необязательно)"
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+      />
+      <button type="submit">Добавить группу</button>
+    </form>
   );
 };
 

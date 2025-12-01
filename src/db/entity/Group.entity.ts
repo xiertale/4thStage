@@ -6,12 +6,16 @@ export class Group {
   @PrimaryGeneratedColumn()
   id!: number;
 
+  @Column({ default: '' })
+  uuid?: string;
+
   @Column()
   name!: string;
 
-  @OneToMany(() => Student, student => student.group)
-  students!: Student[];
+  @Column({ nullable: true })
+  description?: string;
 
-  @Column()
-  contacts!: string;
+  // Обратная связь: одна группа имеет много студентов
+  @OneToMany(() => Student, (student) => student.group)
+  students?: Student[];
 }

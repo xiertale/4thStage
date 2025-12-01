@@ -1,28 +1,76 @@
-import { Group } from './entity/Group.entity';
-import AppDataSource from './AppDataSource';
+import sqlite3 from 'sqlite3';
 import type GroupInterface from '@/types/GroupInterface';
 
-const groupRepository = AppDataSource.getRepository(Group);
+sqlite3.verbose();
 
-/**
- * Получение групп
- * @returns  Promise<GroupInterface[]>
- */
 export const getGroupsDb = async (): Promise<GroupInterface[]> => {
-  const groups = await groupRepository.find({ relations: ['students'] });
+  const db = new sqlite3.Database(process.env.DB ?? './db/vki-web.db');
+
+  const groups = await new Promise((resolve, reject) => {
+    const sql = 'SELECT * FROM `group`'; // Обратные кавычки, если `group` - зарезервированное слово
+    db.all(sql, [], (err, rows) => {
+      if (err) {
+        reject(err);
+        db.close();
+        return;
+      }
+      resolve(rows);
+      db.close();
+    });
+  });
+
   return groups as GroupInterface[];
 };
 
-/**
- * Добавление группы
- * @returns  Promise<GroupInterface>
- */
-export const addGroupDb = async (groupFields: Omit<GroupInterface, 'id'>): Promise<GroupInterface> => {
-  const group = new Group();
-  const newGroup = await groupRepository.save({
-    ...group,
-    ...groupFields,
+export const addGroupDb = async (group: Omit<GroupInterface, 'id'>): Promise<GroupInterface> => {
+  const db = new sqlite3.Database(process.env.DB ?? './db/vki-web.db');
+
+  const newGroup = await new Promise((resolve, reject) => {
+    const sql = 'INSERT INTO `group` (name, description) VALUES (?, ?)';
+    db.run(sql, [group.name, group.description || null], function (err) {
+      if (err) {
+        reject(err);
+        db.close();
+        return;
+      }
+      
+      // Получаем ID вставленной записи
+      const insertedId = this.lastID;
+      
+      // Теперь получаем полную запись
+      const selectSql = 'SELECT * FROM `group` WHERE id = ?';
+      db.get(selectSql, [insertedId], (selectErr, row) => {
+        if (selectErr) {
+          reject(selectErr);
+          db.close();
+          return;
+        }
+        resolve(row);
+        db.close();
+      });
+    });
   });
 
-  return newGroup;
+  return newGroup as GroupInterface;
+};
+
+export const deleteGroupDb = async (groupId: number): Promise<boolean> => {
+  const db = new sqlite3.Database(process.env.DB ?? './db/vki-web.db');
+
+  const result = await new Promise<boolean>((resolve, reject) => {
+    const sql = 'DELETE FROM `group` WHERE id = ?';
+    db.run(sql, [groupId], function (err) {
+      if (err) {
+        reject(err);
+        db.close();
+        return;
+      }
+      
+      // Если affectedRows > 0, значит удаление успешно
+      resolve(this.changes > 0);
+      db.close();
+    });
+  });
+
+  return result;
 };

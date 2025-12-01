@@ -1,51 +1,37 @@
-$width: 400px;
-
 .AddGroup {
-  margin-bottom: 30px;
-  width: $width;
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #f5f5f5;
+  border-radius: 8px;
 
   input {
-    width: calc($width - 8px);
-    margin-bottom: 10px;
-  }
-
-  .error {
-    border-color: #e74c3c;
-  }
-
-  .errorMessage {
-    color: #e74c3c;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
     font-size: 14px;
-    margin-bottom: 10px;
+
+    &:first-of-type {
+      flex: 2;
+    }
+
+    &:nth-of-type(2) {
+      flex: 3;
+    }
   }
 
-  form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .buttons {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-  }
-
-  .submitButton {
-    width: $width;
-    padding: 10px;
-    background: #27ae60;
+  button {
+    padding: 8px 16px;
+    background: #0070f3;
     color: white;
     border: none;
+    border-radius: 4px;
     cursor: pointer;
-  }
+    font-size: 14px;
 
-  .cancelButton {
-    width: $width;
-    padding: 10px;
-    background: #95a5a6;
-    color: white;
-    border: none;
-    cursor: pointer;
+    &:hover {
+      background: #0051cc;
+    }
   }
 }

@@ -1,72 +1,58 @@
 'use client';
 
-import { useState } from 'react';
 import useGroups from '@/hooks/useGroups';
 import type GroupInterface from '@/types/GroupInterface';
 import styles from './Groups.module.scss';
-import AddGroup, { type GroupFormFields } from './AddGroup/AddGroup';
 import GroupItem from './GroupItem/GroupItem';
+import AddGroup, { type FormFields } from './AddGroup/AddGroup';
+import { v4 as uuidv4 } from 'uuid';
 
 const Groups = (): React.ReactElement => {
-  const { groups, addGroupMutate, deleteGroupMutate } = useGroups();
-  const [isAddingGroup, setIsAddingGroup] = useState(false);
+  const {
+    groups,
+    deleteGroupMutate,
+    addGroupMutate,
+  } = useGroups();
 
+  /**
+   * Удаление группы - обработчик события нажатия "удалить"
+   * @param groupId Ид группы
+   */
   const onDeleteHandler = (groupId: number): void => {
     if (confirm('Удалить группу?')) {
+      console.log('onDeleteHandler', groupId);
+      debugger;
+
       deleteGroupMutate(groupId);
     }
   };
 
-  const onAddHandler = (groupFormField: GroupFormFields): void => {
-    addGroupMutate({
-      ...groupFormField,
-      students: [],
-    });
-    setIsAddingGroup(false);
-  };
+  /**
+   * Добавление группы - обработчик события нажатия "добавить"
+   * @param groupFormField Форма группы
+   */
+  const onAddHandler = (groupFormField: FormFields): void => {
+    console.log('Добавление группы', groupFormField);
+    debugger;
 
-  const onCancelAddHandler = (): void => {
-    setIsAddingGroup(false);
+    addGroupMutate({
+      id: -1,
+      ...groupFormField,
+      uuid: uuidv4(),
+    });
   };
 
   return (
     <div className={styles.Groups}>
-      <h1>Группы</h1>
+      <AddGroup onAdd={onAddHandler} />
 
-      {!isAddingGroup ? (
-        <button onClick={() => setIsAddingGroup(true)}>
-          + Добавить группу
-        </button>
-      ) : (
-        <div className={styles.addFormContainer}>
-          <AddGroup onAdd={onAddHandler} onCancel={onCancelAddHandler} />
-        </div>
-      )}
-
-      <div className={styles.groupsList}>
-        {groups.length === 0 ? (
-          <div className={styles.emptyState}>
-            <p>Нет доступных групп</p>
-          </div>
-        ) : (
-          groups.map((group: GroupInterface) => (
-            <GroupItem
-              key={group.id}
-              group={group}
-              onDelete={onDeleteHandler}
-            />
-          ))
-        )}
-      </div>
-
-      <div className={styles.stats}>
-        <div className={styles.statItem}>
-          Всего групп: {groups.length}
-        </div>
-        <div className={styles.statItem}>
-          Всего студентов: {groups.reduce((total, group) => total + (group.students?.length || 0), 0)}
-        </div>
-      </div>
+      {groups.map((group: GroupInterface) => (
+        <GroupItem
+          key={group.id || group.uuid}
+          group={group}
+          onDelete={onDeleteHandler}
+        />
+      ))}
     </div>
   );
 };

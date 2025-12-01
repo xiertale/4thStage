@@ -1,49 +1,5 @@
-$width: 400px;
-
 .Groups {
+  padding: 20px;
+  max-width: 800px;
   margin: 0 auto;
-  width: $width;
-  padding: 20px 0;
-
-  h1 {
-    margin-bottom: 20px;
-    text-align: center;
-  }
-
-  h2 {
-    margin-bottom: 20px;
-    text-align: center;
-  }
-}
-
-.addFormContainer {
-  margin-bottom: 30px;
-}
-
-.groupsList {
-  margin-top: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.emptyState {
-  text-align: center;
-  padding: 40px 0;
-  color: #666;
-}
-
-.stats {
-  margin-top: 30px;
-  padding-top: 20px;
-  border-top: 1px solid #ddd;
-  text-align: center;
-  
-  .statItem {
-    margin-bottom: 10px;
-    
-    &:last-child {
-      margin-bottom: 0;
-    }
-  }
 }
