@@ -1,3 +1,145 @@
 .Groups {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  min-height: 100vh;
+}
+
+.header {
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #3498db;
+}
+
+.title {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 2.5em;
+  font-weight: 600;
+}
+
+.subtitle {
+  margin: 10px 0 0 0;
+  color: #7f8c8d;
+  font-size: 1.1em;
+}
+
+.actions {
+  margin-bottom: 30px;
+}
+
+.addButton {
+  padding: 12px 24px;
+  background: #27ae60;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.3s ease;
   
+  &:hover:not(:disabled) {
+    background: #219a52;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(39, 174, 96, 0.2);
+  }
+  
+  &:disabled {
+    background: #95a5a6;
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+}
+
+.addFormContainer {
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.groupsList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 25px;
+  margin-bottom: 40px;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 60px 20px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  margin: 40px 0;
+  
+  p {
+    margin: 10px 0;
+    color: #6c757d;
+    font-size: 1.1em;
+    
+    &:first-child {
+      font-size: 1.3em;
+      font-weight: 600;
+      color: #495057;
+    }
+  }
+}
+
+.stats {
+  display: flex;
+  gap: 30px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  border: 1px solid #e9ecef;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.statLabel {
+  font-size: 0.9em;
+  color: #6c757d;
+  margin-bottom: 5px;
+}
+
+.statValue {
+  font-size: 2em;
+  font-weight: 700;
+  color: #3498db;
+}
+
+.loadingOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.loadingText {
+  background: #3498db;
+  color: white;
+  padding: 20px 40px;
+  border-radius: 10px;
+  font-size: 1.2em;
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
 }
