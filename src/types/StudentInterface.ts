@@ -8,9 +8,9 @@ interface StudentInterface {
   middleName: string;
   contacts?: string;
   groupId: number;
+  group?: GroupInterface;
   isDeleted?: boolean;
   isNew?: boolean;
-  group?: GroupInterface;
 };
 
 export default StudentInterface;

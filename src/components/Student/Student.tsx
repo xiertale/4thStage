@@ -16,7 +16,7 @@ const Student = ({ student }: Props): React.ReactElement => (
     <h1>{`${student.lastName} ${student.firstName} ${student.middleName}`}</h1>
 
     <div className={styles.row}>
-      <div>ID:</div>
+      <div>ИД:</div>
       <div>{student.id}</div>
     </div>
     <div className={styles.row}>

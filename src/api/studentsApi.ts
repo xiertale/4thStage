@@ -58,20 +58,18 @@ export const addStudentApi = async (student: StudentInterface): Promise<StudentI
   }
 };
 
-export const getStudentByIdApi = async (id: string): Promise<StudentInterface | null> => {
+export const getStudentApi = async (studentId: number): Promise<StudentInterface> => {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API}students/${id}`, {
-      cache: 'no-store',
-    });
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API}students/${studentId}`);
 
     if (!response.ok) {
-      return null;
+      throw new Error(`Ошибка HTTP: ${response.status}${response.statusText}`);
     }
-
-    return await response.json();
+    const student = await response.json() as StudentInterface;
+    return student;
   }
-  catch (error) {
-    console.error('Error fetching student:', error);
-    return null;
+  catch (err) {
+    console.log('>>> getStudentApi', err);
+    throw err;
   }
 };

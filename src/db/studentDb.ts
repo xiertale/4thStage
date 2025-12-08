@@ -1,27 +1,30 @@
 import { Student } from './entity/Student.entity';
 import type StudentInterface from '@/types/StudentInterface';
 import getRandomFio from '@/utils/getRandomFio';
-import AppDataSource from './AppDataSource';
-
-const studentRepository = AppDataSource.getRepository(Student);
+import AppDataSource, { ensureInitialized } from './AppDataSource';
 
 /**
  * Получение студентов
  * @returns Promise<StudentInterface[]>
  */
 export const getStudentsDb = async (): Promise<StudentInterface[]> => {
-  const students = await studentRepository.find({ relations: ['group'] });
-  return students as StudentInterface[];
+  await ensureInitialized();
+  const studentRepository = AppDataSource.getRepository(Student);
+  return await studentRepository.find({
+    relations: ['group'],
+  });
 };
 
 /**
- * Получения студента по id
- * @param id id студента
- * @returns Promise<Student | null>
+ * Получение студента по ID
+ * @param studentId ИД студента
+ * @returns Promise<StudentInterface | null>
  */
-export const getStudentByIdDb = async (id: number): Promise<Student | null> => {
+export const getStudentByIdDb = async (studentId: number): Promise<StudentInterface | null> => {
+  await ensureInitialized();
+  const studentRepository = AppDataSource.getRepository(Student);
   return await studentRepository.findOne({
-    where: { id },
+    where: { id: studentId },
     relations: ['group'],
   });
 };
@@ -32,6 +35,8 @@ export const getStudentByIdDb = async (id: number): Promise<Student | null> => {
  * @returns Promise<number>
  */
 export const deleteStudentDb = async (studentId: number): Promise<number> => {
+  await ensureInitialized();
+  const studentRepository = AppDataSource.getRepository(Student);
   await studentRepository.delete(studentId);
   return studentId;
 };
@@ -42,18 +47,18 @@ export const deleteStudentDb = async (studentId: number): Promise<number> => {
  * @returns Promise<StudentInterface>
  */
 export const addStudentDb = async (studentFields: Omit<StudentInterface, 'id'>): Promise<StudentInterface> => {
+  await ensureInitialized();
+  const studentRepository = AppDataSource.getRepository(Student);
   const student = new Student();
   const newStudent = await studentRepository.save({
     ...student,
     ...studentFields,
   });
   return newStudent;
-
-  // return getStudentById(newStudent.id);
 };
 
 /**
- * Добавление рандомных студентов
+ * Добавление рандомных студента
  * @param amount количество рандомных записей
  * @returns Promise<StudentInterface>
  */
@@ -66,11 +71,9 @@ export const addRandomStudentsDb = async (amount: number = 10): Promise<StudentI
     const newStudent = await addStudentDb({
       ...fio,
       contacts: 'contact',
-      groupId: Math.floor(Math.random() * 4) + 1,
+      groupId: 1,
     });
     students.push(newStudent);
-
-    console.log(newStudent);
   }
 
   return students;

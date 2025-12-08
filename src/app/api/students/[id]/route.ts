@@ -1,54 +1,89 @@
 import { deleteStudentDb, getStudentByIdDb } from '@/db/studentDb';
-import { type NextRequest, NextResponse } from 'next/server';
-import { NextApiResponse, type NextApiRequest } from 'next/types';
+import { type NextApiRequest } from 'next/types';
 
 interface Params {
-  params: { id: number };
+  params: { id: string };
 }
 
-export async function DELETE(req: NextApiRequest, { params }: Params): Promise<Response> {
-  const p = await params;
-  const studentId = await p.id;
-  const deletedStudentId = await deleteStudentDb(studentId);
-
-  return new Response(JSON.stringify({ deletedStudentId }), {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-};
-
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-): Promise<NextResponse> {
+export async function GET(req: NextApiRequest, { params }: Params): Promise<Response> {
   try {
-    console.log('>>> API GET: Initializing database...');
-    // await initializeDatabase();
-    const { id } = await params;
-    const studentId = parseInt(id, 10);
-    console.log('>>> API GET: Getting student with ID:', studentId);
+    const p = await params;
+    const studentId = parseInt(await p.id, 10);
+    
+    if (isNaN(studentId)) {
+      return new Response(JSON.stringify({ error: 'Invalid student ID' }), {
+        status: 400,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+    }
 
     const student = await getStudentByIdDb(studentId);
 
     if (!student) {
-      console.log('>>> API GET: Student not found');
-      return NextResponse.json(
-        { error: 'Student not found' },
-        { status: 404 },
-      );
+      return new Response(JSON.stringify({ error: 'Student not found' }), {
+        status: 404,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
     }
 
-    console.log('>>> API GET: Successfully retrieved student:', studentId);
-    // Преобразуем TypeORM entity в plain object для сериализации
-    const plainStudent = JSON.parse(JSON.stringify(student));
-    return NextResponse.json(plainStudent);
-  }
-  catch (error) {
-    console.error('>>> API GET: Error:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch student' },
-      { status: 500 },
-    );
+    // Сериализация данных, чтобы избежать циклических ссылок
+    const serializedStudent = {
+      ...student,
+      group: student.group ? {
+        id: student.group.id,
+        name: student.group.name,
+        contacts: student.group.contacts,
+      } : undefined,
+    };
+
+    return new Response(JSON.stringify(serializedStudent), {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  } catch (error) {
+    console.error('Error in GET /api/students/[id]:', error);
+    return new Response(JSON.stringify({ error: 'Internal Server Error', message: error instanceof Error ? error.message : 'Unknown error' }), {
+      status: 500,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
   }
 }
+
+export async function DELETE(req: NextApiRequest, { params }: Params): Promise<Response> {
+  try {
+    const p = await params;
+    const studentId = parseInt(await p.id, 10);
+    
+    if (isNaN(studentId)) {
+      return new Response(JSON.stringify({ error: 'Invalid student ID' }), {
+        status: 400,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+    }
+
+    const deletedStudentId = await deleteStudentDb(studentId);
+
+    return new Response(JSON.stringify({ deletedStudentId }), {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  } catch (error) {
+    console.error('Error in DELETE /api/students/[id]:', error);
+    return new Response(JSON.stringify({ error: 'Internal Server Error', message: error instanceof Error ? error.message : 'Unknown error' }), {
+      status: 500,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  }
+};

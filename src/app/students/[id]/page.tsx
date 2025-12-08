@@ -1,42 +1,37 @@
-import { notFound } from 'next/navigation';
-import Student from '@/components/Student/Student';
+'use client';
+
+import { useParams } from 'next/navigation';
+import useStudent from '@/hooks/useStudent';
+import StudentDetail from '@/components/Students/StudentDetail/StudentDetail';
 import Page from '@/components/layout/Page/Page';
-import { META_DESCRIPTION, META_TITLE } from '@/constants/meta';
-import { type Metadata } from 'next/types';
-import { getStudentByIdApi } from '@/api/studentsApi';
 
-interface PageProps {
-  params: Promise<{ id: string }>;
-}
+const StudentPage = (): React.ReactNode => {
+  const params = useParams();
+  const studentId = parseInt(params.id as string, 10);
+  const { student, isLoading, error } = useStudent(studentId);
 
-export const generateMetadata = async ({ params }: PageProps): Promise<Metadata> => {
-  const { id } = await params;
-
-  const student = await getStudentByIdApi(id);
-
-  return {
-    title: student ? `${student.lastName} ${student.firstName} ${student.middleName} -- ${META_TITLE}` : `студент не найден -- ${META_TITLE}`,
-    description: META_DESCRIPTION,
-
-  };
-};
-
-interface PageProps {
-  params: Promise<{ id: string }>;
-}
-
-const StudentsPage = async ({ params }: PageProps): Promise<React.ReactNode> => {
-  const { id } = await params;
-  const student = await getStudentByIdApi(id);
-
-  if (!student) {
-    notFound();
+  if (isLoading) {
+    return (
+      <Page>
+        <div>Загрузка...</div>
+      </Page>
+    );
   }
+
+  if (error || !student) {
+    return (
+      <Page>
+        <div>Студент не найден</div>
+      </Page>
+    );
+  }
+
   return (
     <Page>
-      <Student student={student} />
+      <StudentDetail student={student} />
     </Page>
   );
 };
 
-export default StudentsPage;
+export default StudentPage;
+

@@ -45,28 +45,16 @@ const AddStudent = (): React.ReactElement => {
 
   if (!isFormVisible) {
     return (
-      <div style={{ marginBottom: '30px', textAlign: 'center' }}>
+      <div style={{ marginBottom: '20px' }}>
         <button
           onClick={() => setIsFormVisible(true)}
           style={{
-            padding: '12px 24px',
-            backgroundColor: '#008CBA', // светло-синий
+            padding: '10px 20px',
+            backgroundColor: '#007bff',
             color: 'white',
             border: 'none',
-            borderRadius: '5px',
+            borderRadius: '4px',
             cursor: 'pointer',
-            fontSize: '16px',
-            boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
-            transition: 'background-color 0.3s ease, transform 0.3s ease',
-            fontWeight: 'bold',
-          }}
-          onMouseOver={(e) => {
-            e.currentTarget.style.backgroundColor = '#005f73'; // темно-синий
-            e.currentTarget.style.transform = 'scale(1.05)';
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.backgroundColor = '#008CBA';
-            e.currentTarget.style.transform = 'scale(1)';
           }}
         >
           Добавить студента
@@ -76,12 +64,11 @@ const AddStudent = (): React.ReactElement => {
   }
 
   return (
-    <div style={{ marginBottom: '20px', padding: '20px', border: '1px solid #ddd', borderRadius: '8px', backgroundColor: '#f9f9f9'}}>
-      <h3 style={{ marginBottom: '20px', fontSize: '30px', fontWeight: 'bold' }}>Добавить нового студента</h3>
+    <div style={{ marginBottom: '20px', padding: '20px', border: '1px solid #ddd', borderRadius: '4px' }}>
+      <h3>Добавить нового студента</h3>
       <form onSubmit={handleSubmit(onSubmit)}>
-        {/** Имя */}
         <div style={{ marginBottom: '15px' }}>
-          <label htmlFor="first_name" style={{ display: 'block', marginBottom: '5px', fontWeight: '600', color: '#333' }}>
+          <label htmlFor="first_name" style={{ display: 'block', marginBottom: '5px' }}>
             Имя *
           </label>
           <input
@@ -90,14 +77,10 @@ const AddStudent = (): React.ReactElement => {
             id="first_name"
             style={{
               width: '100%',
-              padding: '10px',
+              padding: '8px',
               border: '1px solid #ccc',
-              borderRadius: '5px',
-              outline: 'none',
-              transition: 'border-color 0.3s',
+              borderRadius: '4px',
             }}
-            onFocus={(e) => (e.currentTarget.style.borderColor = '#008CBA')}
-            onBlur={(e) => (e.currentTarget.style.borderColor = '#ccc')}
           />
           {errors.first_name && (
             <span style={{ color: 'red', fontSize: '12px' }}>
@@ -106,25 +89,20 @@ const AddStudent = (): React.ReactElement => {
           )}
         </div>
 
-        {/** Фамилия */}
         <div style={{ marginBottom: '15px' }}>
-          <label htmlFor="last_name" style={{ display: 'block', marginBottom: '5px', fontWeight: '600', color: '#333' }}>
+          <label htmlFor="last_name" style={{ display: 'block', marginBottom: '5px' }}>
             Фамилия *
           </label>
           <input
-            {...register('last_name', { required: 'Фам            имя обязательно' })}
+            {...register('last_name', { required: 'Фамилия обязательна' })}
             type="text"
             id="last_name"
             style={{
               width: '100%',
-              padding: '10px',
+              padding: '8px',
               border: '1px solid #ccc',
-              borderRadius: '5px',
-              outline: 'none',
-              transition: 'border-color 0.3s',
+              borderRadius: '4px',
             }}
-            onFocus={(e) => (e.currentTarget.style.borderColor = '#008CBA')}
-            onBlur={(e) => (e.currentTarget.style.borderColor = '#ccc')}
           />
           {errors.last_name && (
             <span style={{ color: 'red', fontSize: '12px' }}>
@@ -133,9 +111,8 @@ const AddStudent = (): React.ReactElement => {
           )}
         </div>
 
-        {/** Отчество */}
         <div style={{ marginBottom: '15px' }}>
-          <label htmlFor="middle_name" style={{ display: 'block', marginBottom: '5px', fontWeight: '600', color: '#333' }}>
+          <label htmlFor="middle_name" style={{ display: 'block', marginBottom: '5px' }}>
             Отчество
           </label>
           <input
@@ -144,68 +121,48 @@ const AddStudent = (): React.ReactElement => {
             id="middle_name"
             style={{
               width: '100%',
-              padding: '10px',
+              padding: '8px',
               border: '1px solid #ccc',
-              borderRadius: '5px',
-              outline: 'none',
-              transition: 'border-color 0.3s',
+              borderRadius: '4px',
             }}
-            onFocus={(e) => (e.currentTarget.style.borderColor = '#008CBA')}
-            onBlur={(e) => (e.currentTarget.style.borderColor = '#ccc')}
           />
         </div>
 
-        {/** ID группы */}
         <div style={{ marginBottom: '15px' }}>
-          <label htmlFor="group_id" style={{ display: 'block', marginBottom: '5px', fontWeight: '600', color: '#333' }}>
-            ID группы *
+          <label htmlFor="group_id" style={{ display: 'block', marginBottom: '5px' }}>
+            ID группы
           </label>
           <input
-            {...register('group_id', { required: 'ID группы обязателен', valueAsNumber: true })}
+            {...register('group_id', { valueAsNumber: true })}
             type="number"
             id="group_id"
             style={{
               width: '100%',
-              padding: '10px',
+              padding: '8px',
               border: '1px solid #ccc',
-              borderRadius: '5px',
-              outline: 'none',
-              transition: 'border-color 0.3s',
+              borderRadius: '4px',
             }}
-            onFocus={(e) => (e.currentTarget.style.borderColor = '#008CBA')}
-            onBlur={(e) => (e.currentTarget.style.borderColor = '#ccc')}
           />
-          {errors.group_id && (
-            <span style={{ color: 'red', fontSize: '12px' }}>
-              {errors.group_id.message}
-            </span>
-          )}
         </div>
 
-        {/** Ошибка добавления */}
         {error && (
           <div style={{ color: 'red', marginBottom: '15px' }}>
             {error}
           </div>
         )}
 
-        {/** Кнопки отправки и отмены */}
         <div style={{ display: 'flex', gap: '10px' }}>
           <button
             type="submit"
             disabled={isAdding}
             style={{
-              padding: '12px 24px',
-              backgroundColor: isAdding ? '#ccc' : '#2d90d1ff',
+              padding: '10px 20px',
+              backgroundColor: isAdding ? '#ccc' : '#28a745',
               color: 'white',
               border: 'none',
-              borderRadius: '5px',
+              borderRadius: '4px',
               cursor: isAdding ? 'not-allowed' : 'pointer',
-              transition: 'background-color 0.3s, transform 0.3s',
-              fontWeight: 'bold',
             }}
-            onMouseOver={(e) => !isAdding && (e.currentTarget.style.backgroundColor = '#218838')}
-            onMouseOut={(e) => !isAdding && (e.currentTarget.style.backgroundColor = '#28a745')}
           >
             {isAdding ? 'Добавление...' : 'Добавить'}
           </button>
@@ -217,17 +174,13 @@ const AddStudent = (): React.ReactElement => {
               setError(null);
             }}
             style={{
-              padding: '12px 24px',
+              padding: '10px 20px',
               backgroundColor: '#6c757d',
               color: 'white',
               border: 'none',
-              borderRadius: '5px',
+              borderRadius: '4px',
               cursor: 'pointer',
-              transition: 'background-color 0.3s',
-              fontWeight: 'bold',
             }}
-            onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#5a6268')}
-            onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#6c757d')}
           >
             Отмена
           </button>

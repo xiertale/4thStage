@@ -1,0 +1,38 @@
+
+@use '../../../styles/main';
+
+.LoginForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: min(420px, 100%);
+  padding: 20px;
+  border: 1px solid var(--background3);
+  border-radius: 20px;
+
+  @media #{main.$mob} {
+    padding: main.vwMax(20px);
+    width: calc(100% - main.vwMax(40px));
+    max-width: 600px;
+  }
+}
+
+.actions {
+  margin-top: 20px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.error {
+  color: var(--color3);
+}
